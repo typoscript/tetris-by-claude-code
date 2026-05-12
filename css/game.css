@@ -1,3 +1,4 @@
+/* ── 테마 변수 ─────────────────────────────────────── */
 :root {
   --bg:        #1a1a2e;
   --panel-bg:  #16213e;
@@ -10,6 +11,9 @@
   --accent:    #e94560;
   --accent-hv: #c73652;
   --grid:      #1e1e3a;
+  --gc-bg:     #0f0f20;
+  --gc-btn:    #2a2a4e;
+  --gc-btn-sh: #0d0d1a;
 }
 [data-theme="light"] {
   --bg:        #f0f2f5;
@@ -23,6 +27,9 @@
   --accent:    #e94560;
   --accent-hv: #c73652;
   --grid:      #d0d4e0;
+  --gc-bg:     #dde0e8;
+  --gc-btn:    #bcc0cc;
+  --gc-btn-sh: #9fa4b0;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,11 +41,15 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: 'Courier New', monospace;
   color: var(--text);
   transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+  user-select: none;
 }
 
+/* ── 상단 버튼 ─────────────────────────────────────── */
 #topbar {
   display: flex;
   gap: 10px;
@@ -58,9 +69,11 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 .icon-btn:hover { background: var(--border2); }
 
+/* ── 게임 영역 ─────────────────────────────────────── */
 #app {
   display: flex;
   gap: 24px;
@@ -74,6 +87,7 @@ canvas {
   transition: background 0.3s, border-color 0.3s;
 }
 
+/* ── 사이드 패널 (데스크탑) ────────────────────────── */
 #panel {
   width: 140px;
   display: flex;
@@ -118,6 +132,7 @@ canvas {
   font-weight: bold;
   cursor: pointer;
   letter-spacing: 1px;
+  -webkit-tap-highlight-color: transparent;
 }
 #btn:hover { background: var(--accent-hv); }
 
@@ -125,4 +140,163 @@ canvas {
   font-size: 11px;
   color: var(--muted2);
   line-height: 1.9;
+}
+
+/* ── 게임패드 (기본: 숨김) ─────────────────────────── */
+#gamepad {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 20px 20px;
+  background: var(--gc-bg);
+  border-radius: 28px 28px 0 0;
+  margin-top: 12px;
+  gap: 12px;
+  /* 노치/홈바 대응 */
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* D-PAD 십자키 */
+.gc-dpad {
+  display: grid;
+  grid-template-columns: 54px 54px 54px;
+  grid-template-rows: 54px 54px 54px;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.gc-rotate { grid-column: 2; grid-row: 1; }
+.gc-left   { grid-column: 1; grid-row: 2; }
+.gc-down   { grid-column: 2; grid-row: 2; }
+.gc-right  { grid-column: 3; grid-row: 2; }
+
+/* 버튼 공통 */
+.gc-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  border: none;
+  background: var(--gc-btn);
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 0 var(--gc-btn-sh), inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: transform 0.07s, box-shadow 0.07s, background 0.07s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+.gc-btn:active,
+.gc-btn.pressed {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--gc-btn-sh), inset 0 1px 0 rgba(255,255,255,0.08);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* 중앙 START 버튼 */
+.gc-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.gc-start-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+.gc-start-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* 오른쪽 액션 버튼 (⚡ 하드드롭) */
+.gc-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gc-drop {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  font-size: 28px;
+  background: #3a1535;
+  box-shadow: 0 6px 0 #1a0a18, inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.gc-drop:active,
+.gc-drop.pressed {
+  background: var(--accent);
+  box-shadow: 0 2px 0 #1a0a18, inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ── 모바일 레이아웃 (≤640px) ──────────────────────── */
+@media (max-width: 640px) {
+  body {
+    justify-content: flex-start;
+    padding: 10px 0 0;
+    gap: 0;
+  }
+
+  #topbar {
+    width: 100%;
+    padding: 0 12px;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  #app {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  /* 가로형 스탯 패널 */
+  #panel {
+    width: 100%;
+    flex-direction: row;
+    padding: 0 12px;
+    gap: 6px;
+    order: -1;
+  }
+
+  .box {
+    flex: 1;
+    padding: 8px 6px;
+    text-align: center;
+  }
+  .box h3 { font-size: 9px; margin-bottom: 3px; }
+  .box .value { font-size: 15px; }
+
+  #next-box { flex: 1.2; }
+  #next-canvas { margin-top: 2px; }
+
+  /* 데스크탑 전용 요소 숨기기 */
+  #keys { display: none; }
+  #btn  { display: none; }
+
+  /* 캔버스 중앙 정렬 */
+  #board { display: block; margin: 0 auto; }
+
+  /* 게임패드 표시 */
+  #gamepad { display: flex; }
+}
+
+/* 아주 작은 화면 (≤360px) */
+@media (max-width: 360px) {
+  .gc-btn  { width: 46px; height: 46px; font-size: 17px; }
+  .gc-dpad { grid-template-columns: 46px 46px 46px; grid-template-rows: 46px 46px 46px; gap: 4px; }
+  .gc-drop { width: 60px; height: 60px; font-size: 24px; }
 }

@@ -2,7 +2,7 @@
 <html lang="ko" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Tetris</title>
   <link rel="stylesheet" href="css/game.css" />
 </head>
@@ -28,7 +28,7 @@
       <h3>Level</h3>
       <div class="value" id="level">1</div>
     </div>
-    <div class="box">
+    <div class="box" id="next-box">
       <h3>Next</h3>
       <canvas id="next-canvas" width="100" height="100"></canvas>
     </div>
@@ -39,6 +39,22 @@
       ↓ &nbsp;&nbsp;&nbsp;&nbsp;빠르게<br>
       Space &nbsp;즉시낙하
     </div>
+  </div>
+</div>
+
+<!-- 모바일 게임패드 -->
+<div id="gamepad">
+  <div class="gc-dpad">
+    <button class="gc-btn gc-rotate" id="gc-rotate" aria-label="회전">↺</button>
+    <button class="gc-btn gc-left"   id="gc-left"   aria-label="왼쪽">◀</button>
+    <button class="gc-btn gc-down"   id="gc-down"   aria-label="아래">▼</button>
+    <button class="gc-btn gc-right"  id="gc-right"  aria-label="오른쪽">▶</button>
+  </div>
+  <div class="gc-center">
+    <button class="gc-start-btn" id="gc-start">START</button>
+  </div>
+  <div class="gc-actions">
+    <button class="gc-btn gc-drop" id="gc-drop" aria-label="즉시 낙하">⚡</button>
   </div>
 </div>
 

@@ -1,4 +1,5 @@
-const COLS = 10, ROWS = 20, BLOCK = 30;
+const COLS = 10, ROWS = 20;
+let BLOCK = 30;
 
 const PIECES = [
   { shape: [[1,1,1,1]],               color: '#00f0f0' },
@@ -22,7 +23,34 @@ const themeBtn   = document.getElementById('theme-btn');
 const musicBtn   = document.getElementById('music-btn');
 const bgm        = document.getElementById('bgm');
 
-/* ── 테마 ──────────────────────────────────────────────── */
+/* ── 반응형 캔버스 크기 계산 ────────────────────────── */
+function getNextBlockSize() {
+  return Math.max(12, Math.floor(BLOCK * 0.62));
+}
+
+function initLayout() {
+  const isMobile = window.innerWidth <= 640;
+  if (isMobile) {
+    const hPad = 24;
+    const availW = window.innerWidth - hPad;
+    // topbar(50) + panel(62) + gap(16) + gamepad(185) + margins(30) = ~343px 예약
+    const reservedH = 50 + 62 + 16 + 185 + 30;
+    const availH = window.innerHeight - reservedH;
+    const byW = Math.floor(availW / COLS);
+    const byH = Math.floor(Math.max(availH, ROWS * 14) / ROWS);
+    BLOCK = Math.max(14, Math.min(byW, byH));
+  } else {
+    BLOCK = 30;
+  }
+  canvas.width  = BLOCK * COLS;
+  canvas.height = BLOCK * ROWS;
+
+  const ns = getNextBlockSize();
+  nextCanvas.width  = ns * 5;
+  nextCanvas.height = ns * 5;
+}
+
+/* ── 테마 ──────────────────────────────────────────── */
 let isDark = true;
 themeBtn.addEventListener('click', () => {
   isDark = !isDark;
@@ -30,22 +58,17 @@ themeBtn.addEventListener('click', () => {
   themeBtn.textContent = isDark ? '🌙' : '☀️';
 });
 
-/* ── 음악 ──────────────────────────────────────────────── */
+/* ── 음악 ──────────────────────────────────────────── */
 let musicOn = false;
 bgm.volume = 0.45;
 
 musicBtn.addEventListener('click', () => {
   musicOn = !musicOn;
-  if (musicOn) {
-    bgm.play().catch(() => {});
-    musicBtn.textContent = '🔊';
-  } else {
-    bgm.pause();
-    musicBtn.textContent = '🔇';
-  }
+  if (musicOn) { bgm.play().catch(() => {}); musicBtn.textContent = '🔊'; }
+  else          { bgm.pause();               musicBtn.textContent = '🔇'; }
 });
 
-/* ── 게임 상태 ─────────────────────────────────────────── */
+/* ── 게임 상태 ─────────────────────────────────────── */
 let board = newBoard(), piece, nextPiece;
 let score, lines, level, gameOver, running, dropTimer, dropInterval;
 
@@ -94,13 +117,19 @@ function clearLines(b) {
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
 
+function syncMobileBtns(label) {
+  const gcStart = document.getElementById('gc-start');
+  if (gcStart) gcStart.textContent = label;
+}
+
 function spawn() {
   piece = nextPiece || randomPiece();
   nextPiece = randomPiece();
   if (!valid(board, piece)) {
     gameOver = true;
-    running = false;
+    running  = false;
     btn.textContent = 'RESTART';
+    syncMobileBtns('RESTART');
     drawOverlay();
     if (musicOn) { bgm.pause(); bgm.currentTime = 0; musicOn = false; musicBtn.textContent = '🔇'; }
   }
@@ -116,7 +145,7 @@ function drop() {
     if (n) {
       lines += n;
       score += LINE_SCORES[n] * level;
-      level = Math.floor(lines / 10) + 1;
+      level  = Math.floor(lines / 10) + 1;
       dropInterval = Math.max(100, 1000 - (level - 1) * 100);
       clearInterval(dropTimer);
       dropTimer = setInterval(() => { if (running) drop(); }, dropInterval);
@@ -137,7 +166,7 @@ function updateUI() {
   levelEl.textContent = level;
 }
 
-/* ── 그리기 ─────────────────────────────────────────────── */
+/* ── 그리기 ────────────────────────────────────────── */
 function drawBlock(context, x, y, color, size = BLOCK) {
   context.fillStyle = color;
   context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
@@ -179,9 +208,10 @@ function draw() {
     );
   }
 
+  // Next 블록 미리보기
+  const ns = getNextBlockSize();
   nCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
   if (nextPiece) {
-    const ns = 20;
     const offX = Math.floor((5 - nextPiece.shape[0].length) / 2);
     const offY = Math.floor((5 - nextPiece.shape.length) / 2);
     nextPiece.shape.forEach((row, r) =>
@@ -201,25 +231,26 @@ function drawOverlay() {
   ctx.fillStyle = 'rgba(0,0,0,0.62)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#e94560';
-  ctx.font = 'bold 28px Courier New';
+  ctx.font = `bold ${Math.max(16, BLOCK)}px Courier New`;
   ctx.textAlign = 'center';
-  ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 20);
+  ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - BLOCK * 0.6);
   ctx.fillStyle = '#eee';
-  ctx.font = '16px Courier New';
-  ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 16);
+  ctx.font = `${Math.max(11, Math.floor(BLOCK * 0.55))}px Courier New`;
+  ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + BLOCK * 0.6);
 }
 
-/* ── 시작 ───────────────────────────────────────────────── */
+/* ── 시작 ──────────────────────────────────────────── */
 function startGame() {
   board = newBoard();
   score = 0; lines = 0; level = 1;
   dropInterval = 800;
   gameOver = false;
-  running = true;
+  running  = true;
   nextPiece = randomPiece();
   spawn();
   updateUI();
   btn.textContent = 'RESTART';
+  syncMobileBtns('RESTART');
   clearInterval(dropTimer);
   dropTimer = setInterval(() => { if (running) drop(); }, dropInterval);
   if (musicOn) { bgm.currentTime = 0; bgm.play().catch(() => {}); }
@@ -227,6 +258,7 @@ function startGame() {
 
 btn.addEventListener('click', startGame);
 
+/* ── 키보드 입력 ───────────────────────────────────── */
 document.addEventListener('keydown', e => {
   if (!running) return;
   switch (e.key) {
@@ -242,4 +274,57 @@ document.addEventListener('keydown', e => {
   }
 });
 
+/* ── 모바일 게임패드 ────────────────────────────────── */
+function bindGamepadBtn(id, action, { repeat = false } = {}) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  let timer = null;
+
+  const press = (e) => {
+    e.preventDefault();
+    el.classList.add('pressed');
+    action();
+    if (repeat) timer = setInterval(action, 130);
+  };
+
+  const release = (e) => {
+    e.preventDefault();
+    el.classList.remove('pressed');
+    clearInterval(timer);
+    timer = null;
+  };
+
+  el.addEventListener('touchstart',  press,   { passive: false });
+  el.addEventListener('touchend',    release, { passive: false });
+  el.addEventListener('touchcancel', release, { passive: false });
+  // 데스크탑 테스트용
+  el.addEventListener('mousedown',   press);
+  el.addEventListener('mouseup',     release);
+  el.addEventListener('mouseleave',  release);
+}
+
+function setupGamepad() {
+  bindGamepadBtn('gc-left',   () => { if (running && valid(board, piece, -1)) piece.x--; }, { repeat: true });
+  bindGamepadBtn('gc-right',  () => { if (running && valid(board, piece,  1)) piece.x++; }, { repeat: true });
+  bindGamepadBtn('gc-down',   () => { if (running) drop(); },                               { repeat: true });
+  bindGamepadBtn('gc-rotate', () => {
+    if (!running) return;
+    const r = rotate(piece.shape);
+    if (valid(board, piece, 0, 0, r)) piece.shape = r;
+  });
+  bindGamepadBtn('gc-drop',  () => { if (running) hardDrop(); });
+  bindGamepadBtn('gc-start', () => startGame());
+}
+
+/* ── 화면 크기 변화 대응 ────────────────────────────── */
+window.addEventListener('resize', () => {
+  initLayout();
+  // 게임 오버 상태면 오버레이 다시 그리기
+  if (gameOver) drawOverlay();
+});
+
+/* ── 초기화 ────────────────────────────────────────── */
+initLayout();
+setupGamepad();
 draw();
