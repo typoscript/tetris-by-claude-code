@@ -1,0 +1,128 @@
+:root {
+  --bg:        #1a1a2e;
+  --panel-bg:  #16213e;
+  --board-bg:  #0d0d1a;
+  --border:    #444;
+  --border2:   #333;
+  --text:      #eee;
+  --muted:     #888;
+  --muted2:    #666;
+  --accent:    #e94560;
+  --accent-hv: #c73652;
+  --grid:      #1e1e3a;
+}
+[data-theme="light"] {
+  --bg:        #f0f2f5;
+  --panel-bg:  #ffffff;
+  --board-bg:  #e8eaf0;
+  --border:    #bbb;
+  --border2:   #ddd;
+  --text:      #1a1a2e;
+  --muted:     #555;
+  --muted2:    #888;
+  --accent:    #e94560;
+  --accent-hv: #c73652;
+  --grid:      #d0d4e0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+
+#topbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.icon-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 18px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.icon-btn:hover { background: var(--border2); }
+
+#app {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+canvas {
+  border: 2px solid var(--border);
+  background: var(--board-bg);
+  display: block;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+#panel {
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.box {
+  background: var(--panel-bg);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 12px;
+  transition: background 0.3s, border-color 0.3s;
+}
+.box h3 {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.box .value {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+#next-canvas {
+  border: none;
+  background: transparent;
+  margin-top: 4px;
+}
+
+#btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+#btn:hover { background: var(--accent-hv); }
+
+#keys {
+  font-size: 11px;
+  color: var(--muted2);
+  line-height: 1.9;
+}
