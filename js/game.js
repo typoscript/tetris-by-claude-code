@@ -118,8 +118,8 @@ function clearLines(b) {
 const LINE_SCORES = [0, 100, 300, 500, 800];
 
 function syncMobileBtns(label) {
-  const gcStart = document.getElementById('gc-start');
-  if (gcStart) gcStart.textContent = label;
+  const btnMobile = document.getElementById('btn-mobile');
+  if (btnMobile) btnMobile.textContent = label;
 }
 
 function spawn() {
@@ -257,6 +257,7 @@ function startGame() {
 }
 
 btn.addEventListener('click', startGame);
+document.getElementById('btn-mobile').addEventListener('click', startGame);
 
 /* ── 키보드 입력 ───────────────────────────────────── */
 document.addEventListener('keydown', e => {
@@ -313,8 +314,7 @@ function setupGamepad() {
     const r = rotate(piece.shape);
     if (valid(board, piece, 0, 0, r)) piece.shape = r;
   });
-  bindGamepadBtn('gc-drop',  () => { if (running) hardDrop(); });
-  bindGamepadBtn('gc-start', () => startGame());
+  bindGamepadBtn('gc-drop', () => { if (running) hardDrop(); });
 }
 
 /* ── 화면 크기 변화 대응 ────────────────────────────── */
